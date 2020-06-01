@@ -8,7 +8,7 @@ output:
       
 ---
 
-```{r setup, include=FALSE, echo=FALSE}
+```{r setup,include=FALSE,echo=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -16,7 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ##### My libraries to work today: (Uncomment if you don't have them installed)
 
-```{r}
+```{r libraries}
 #install.packages("dplyr")
 #install.packages("tidyr")
 #install.packages("RColorBrewer")
@@ -29,14 +29,14 @@ library(chron)
 
 ## Decompressing the file
 
-```{r Decompressing the files}
+```{r Decompressin_the_files}
 unzip(zipfile="repdata_data_activity.zip") 
 ```
 
 
 ## Color Palette
 
-```{r Color Palette for the Plots}
+```{r Color_Palette_for_the_Plots}
 cols<-brewer.pal(5,"Set1")
 pal<-colorRampPalette(colors = cols[3:5])
 palette(pal(7))
@@ -45,7 +45,7 @@ ColorDays<-pal(7)
 
 ## Reading the data
 
-```{r reading the file}
+```{r Reading_the_file}
 data4work<-read.csv(file="activity.csv",na.strings = "NA")
 print(head(data4work,n=5))
 ```
@@ -53,7 +53,7 @@ print(head(data4work,n=5))
 ## 1) Counting the Steps in each Day
 
 Steps by day:
-```{r Counting the steps in each day}
+```{r Counting_the_steps_in_each_day}
 data4work<-mutate(data4work,date=factor(data4work$date))
 StepsByDay<-tapply(data4work$steps,data4work$date,sum)
 StepsDayData<-data.frame(StepsByDay,Days=factor(unique(data4work$date)))
@@ -63,7 +63,7 @@ rm(StepsByDay)
 ### Histogram for the StepsDayData:
 
 
-```{r Plotting the histogram}
+```{r Plotting_the_histogram}
 par(mar=c(5,4,1,1), las=1,mfrow=c(1,1))
 with(data = StepsDayData,hist(StepsByDay,breaks = 20,col=pal(20),
                               xlab = "Steps by Day", ylab = "Days", 
@@ -75,7 +75,7 @@ with(data = StepsDayData,hist(StepsByDay,breaks = 20,col=pal(20),
 
 ### Mean and Median of the Numbre of Steps by Day
 
-```{r Statistical data}
+```{r Statistical_data}
 StepsByDaySummary<-summary(StepsDayData$StepsByDay)
 print(StepsByDaySummary)
 ```
@@ -88,7 +88,7 @@ print(StepsByDaySummary)
 
 ### Before removing the NAs:
 
-```{r Calculating the mean of the steps by interval with NAs}
+```{r Calculating_the_mean_of_the_steps_by_interval_with_NAs}
 data4work<-mutate(data4work,interval=factor(data4work$interval))
 StepsByIntervalMean<-tapply(data4work$steps,data4work$interval,mean)
 StepsIntervalData<-data.frame(StepsByIntervalMean,
@@ -99,7 +99,7 @@ head(StepsIntervalData)
 
 ### After removing the NAs:
 
-```{r Calculating the mean of the steps by interval without NAs}
+```{r Calculating_the mean_of_thesteps_by_interval_without_NAs}
 data4work<-mutate(data4work,interval=factor(data4work$interval))
 data2work<-subset(data4work,!is.na(data4work[,1]))
 StepsByIntervalMean<-tapply(data2work$steps,data2work$interval,mean)
@@ -112,7 +112,7 @@ head(StepsIntervalData)
 ### Plotting the Daily behaviour:
 
 
-```{r Plotting the Daily behaviour Scatterplot, }
+```{r Plotting_the_Daily_behaviour_Scatterplot}
 par(mar=c(5,4,1,1),mfrow=c(1,1))
 plot(levels(StepsIntervalData$Interval),StepsIntervalData$StepsByIntervalMean,
                              main = "Steps by Five Minute Interval", 
@@ -125,7 +125,7 @@ grid(col = "lightgray", lty = "dotted", lwd = 1, equilogs = TRUE)
 (Image 2)
 
 
-```{r Maximum Steps per Interval}
+```{r Maximum_Steps_per_Interval}
 MaxStepsin5<-StepsIntervalData[StepsIntervalData$StepsByIntervalMean==max(StepsIntervalData$StepsByIntervalMean),]
 ```
 
@@ -139,7 +139,7 @@ MaxStepsin5<-StepsIntervalData[StepsIntervalData$StepsByIntervalMean==max(StepsI
 
 ### Substituting missing values with the daily behavioural mean
 
-```{r Substituting missing values with the behavioural mean}
+```{r Substituting_missing_values_with_the_behavioural_mean}
 missingDays<-unique(data4work$date[is.na(data4work$steps)])
 data2work<-data4work
 MeanSteps<-StepsIntervalData$StepsByIntervalMean
@@ -149,13 +149,13 @@ rm(list=c("missingDays","MeanSteps"))
 
 ### Now the histogram (Image 1) must be repeated with the new data:
 
-```{r Counting steps by day (again), echo=FALSE}
+```{r Counting_steps_by_day_again,echo=FALSE}
 StepsByDay<-tapply(data2work$steps,data2work$date,sum)
 StepsDayData2<-data.frame(StepsByDay,Days=factor(unique(data4work$date)))
 rm(StepsByDay)
 ```
 
-```{r Repeating the Histogram}
+```{r Repeating_the_Histogram}
 par(mar=c(5,4,1,1), las=1, mfrow=c(1,1))
 with(data = StepsDayData2,hist(StepsByDay,breaks = 20,col=pal(20),
                               xlab = "Steps by Day", ylab = "Days", 
@@ -171,7 +171,7 @@ with(data = StepsDayData2,hist(StepsByDay,breaks = 20,col=pal(20),
 
 ### Now to calcule the new ones:
 
-```{r Statistical data with imputed values instead of NAs}
+```{r Statistical_data_with_imputed_values_instead_of_NAs}
 StepsByDaySummaryImputed<-summary(StepsDayData2$StepsByDay)
 print(StepsByDaySummaryImputed)
 ```
@@ -180,7 +180,7 @@ print(StepsByDaySummaryImputed)
 
 ## 4) Comparisson between Weekday's and Weekend's Behaviours.
 
-```{r Creating the factor column (week or weekend)}
+```{r Creating_the_factor_column_week_or_weekend}
 WeekyDays<-strptime(data2work$date, format = "%Y-%m-%d")
 IsWeek<-!is.weekend(WeekyDays)
 WeekFactor<-as.character(IsWeek)
@@ -195,7 +195,7 @@ head(data2work)
 
 ### Now we create the groups to summarize
 
-```{r summarizing for the weekdays and weekends}
+```{r summarizing_for_the_weekdays_and_weekends}
 data4Weekend<-subset(data2work,grepl("Weekend",data2work$weekday_or_weekend))
 data4Weekdays<-subset(data2work,grepl("Weekday",data2work$weekday_or_weekend))
 StepsByIntervalWeekends<-tapply(data4Weekend$steps,data4Weekend$interval,mean)
@@ -205,7 +205,7 @@ Interval<-levels(data4Weekend$interval)
 
 #### Now, with the data separated, the plot for the Weekdays and Weekends can be compared. The powderblue line is the contrasting behaviour, the purple line is the bevaviour that's been plotted.
 
-```{r last scatterplots}
+```{r last_scatterplots}
 par(mfrow=c(2,1), mar=c(5,4,1,1))
 plot(Interval,StepsByIntervalWeekdays,type="l", main="Weekdays Behaviour",
      xlab= "Five Minutes Interval", ylab="Steps Taken - Average",

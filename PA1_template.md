@@ -110,7 +110,7 @@ with(data = StepsDayData,hist(StepsByDay,breaks = 20,col=pal(20),
                               labels = TRUE))
 ```
 
-![](PA1_template_files/figure-html/Plotting the histogram-1.png)<!-- -->
+![](PA1_template_files/figure-html/Plotting_the_histogram-1.png)<!-- -->
 
 
 
@@ -192,7 +192,7 @@ plot(levels(StepsIntervalData$Interval),StepsIntervalData$StepsByIntervalMean,
 grid(col = "lightgray", lty = "dotted", lwd = 1, equilogs = TRUE)
 ```
 
-![](PA1_template_files/figure-html/Plotting the Daily behaviour Scatterplot-1.png)<!-- -->
+![](PA1_template_files/figure-html/Plotting_the_Daily_behaviour_Scatterplot-1.png)<!-- -->
 
 (Image 2)
 
@@ -234,7 +234,7 @@ with(data = StepsDayData2,hist(StepsByDay,breaks = 20,col=pal(20),
                               labels = TRUE))
 ```
 
-![](PA1_template_files/figure-html/Repeating the Histogram-1.png)<!-- -->
+![](PA1_template_files/figure-html/Repeating_the_Histogram-1.png)<!-- -->
 
 (Image 3)
 
@@ -311,7 +311,7 @@ lines(Interval,StepsByIntervalWeekdays,col="powderblue")
 grid(col = "lightgray", lty = "dotted", lwd = 1, equilogs = TRUE)
 ```
 
-![](PA1_template_files/figure-html/last scatterplots-1.png)<!-- -->
+![](PA1_template_files/figure-html/last_scatterplots-1.png)<!-- -->
 
 (Image 4)
 
