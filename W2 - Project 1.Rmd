@@ -1,0 +1,222 @@
+---
+title: "Rep.Research - W2 - P1"
+author: "Marely Ruiz"
+date: "5/31/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Libraries
+
+##### My libraries to work today: (Uncomment if you don't have them installed)
+
+```{r}
+#install.packages("dplyr")
+#install.packages("tidyr")
+#install.packages("RColorBrewer")
+#install.packages("chron")
+library(dplyr)
+library(tidyr)
+library(RColorBrewer)
+library(chron)
+```
+
+## Decompressing the file
+
+```{r Decompressing the files}
+unzip(zipfile="repdata_data_activity.zip") 
+```
+
+
+## Color Palette
+
+```{r Color Palette for the Plots}
+cols<-brewer.pal(5,"Set1")
+pal<-colorRampPalette(colors = cols[3:5])
+palette(pal(7))
+ColorDays<-pal(7)
+```
+
+## Reading the data
+
+```{r reading the file}
+data4work<-read.csv(file="activity.csv",na.strings = "NA")
+print(head(data4work,n=5))
+```
+
+## 1) Counting the Steps in each Day
+
+Steps by day:
+```{r Counting the steps in each day}
+data4work<-mutate(data4work,date=factor(data4work$date))
+StepsByDay<-tapply(data4work$steps,data4work$date,sum)
+StepsDayData<-data.frame(StepsByDay,Days=factor(unique(data4work$date)))
+rm(StepsByDay)
+```
+
+### Histogram for the StepsDayData:
+
+
+```{r Plotting the histogram}
+par(mar=c(5,4,1,1), las=1,mfrow=c(1,1))
+with(data = StepsDayData,hist(StepsByDay,breaks = 20,col=pal(20),
+                              xlab = "Steps by Day", ylab = "Days", 
+                              main = "Number of Days vs Same Number of Steps",
+                              labels = TRUE))
+```
+
+
+
+### Mean and Median of the Numbre of Steps by Day
+
+```{r Statistical data}
+StepsByDaySummary<-summary(StepsDayData$StepsByDay)
+print(StepsByDaySummary)
+```
+
+### The mean is `r StepsByDaySummary[4]` anf the median is `r StepsByDaySummary[3]`
+
+#### In this part the NA's were isolated to specific days, so it could be worked arround and plotted arround. However, in the next one the daily behaviour will be evaluated, so the NA's must be removed to be able to get the averages or even the total without losing data (all of the data becomes NAs if they're not removed).
+
+## 2) Daily Activity Pattern
+
+### Before removing the NAs:
+
+```{r Calculating the mean of the steps by interval with NAs}
+data4work<-mutate(data4work,interval=factor(data4work$interval))
+StepsByIntervalMean<-tapply(data4work$steps,data4work$interval,mean)
+StepsIntervalData<-data.frame(StepsByIntervalMean,
+                              Interval=factor(unique(data4work$interval)))
+rm(StepsByIntervalMean)
+head(StepsIntervalData)
+```
+
+### After removing the NAs:
+
+```{r Calculating the mean of the steps by interval without NAs}
+data4work<-mutate(data4work,interval=factor(data4work$interval))
+data2work<-subset(data4work,!is.na(data4work[,1]))
+StepsByIntervalMean<-tapply(data2work$steps,data2work$interval,mean)
+StepsIntervalData<-data.frame(StepsByIntervalMean,
+                              Interval=factor(unique(data4work$interval)))
+rm(list=c("StepsByIntervalMean","data2work"))
+head(StepsIntervalData)
+```
+
+### Plotting the Daily behaviour:
+
+
+```{r Plotting the Daily behaviour Scatterplot, }
+par(mar=c(5,4,1,1),mfrow=c(1,1))
+plot(levels(StepsIntervalData$Interval),StepsIntervalData$StepsByIntervalMean,
+                             main = "Steps by Five Minute Interval", 
+                             xlab = "Interval",ylab = "Steps Average",
+                             col=ColorDays[4], type = "l")
+
+grid(col = "lightgray", lty = "dotted", lwd = 1, equilogs = TRUE)
+```
+
+(Image 2)
+
+
+```{r Maximum Steps per Interval}
+MaxStepsin5<-StepsIntervalData[StepsIntervalData$StepsByIntervalMean==max(StepsIntervalData$StepsByIntervalMean),]
+```
+
+
+
+
+### The maximum average steps/five minutes were `r MaxStepsin5[1]` in the interval `r MaxStepsin5[2]`
+
+## 3) Imputing Missing Values
+
+
+### Substituting missing values with the daily behavioural mean
+
+```{r Substituting missing values with the behavioural mean}
+missingDays<-unique(data4work$date[is.na(data4work$steps)])
+data2work<-data4work
+MeanSteps<-StepsIntervalData$StepsByIntervalMean
+data2work$steps[data2work$date%in%missingDays]<-MeanSteps
+rm(list=c("missingDays","MeanSteps"))
+```
+
+### Now the histogram (Image 1) must be repeated with the new data:
+
+```{r Counting steps by day (again), echo=FALSE}
+StepsByDay<-tapply(data2work$steps,data2work$date,sum)
+StepsDayData2<-data.frame(StepsByDay,Days=factor(unique(data4work$date)))
+rm(StepsByDay)
+```
+
+```{r Repeating the Histogram}
+par(mar=c(5,4,1,1), las=1, mfrow=c(1,1))
+with(data = StepsDayData2,hist(StepsByDay,breaks = 20,col=pal(20),
+                              xlab = "Steps by Day", ylab = "Days", 
+                              main = "Frequency of Steps on a Day",
+                              labels = TRUE))
+```
+
+(Image 3)
+
+### The number of days with the mean Steps/Day has gone from 10 to 18 since the first histogram (Image 1)
+
+### The first mean was `r StepsByDaySummary[4]` anf the first median was `r StepsByDaySummary[3]`
+
+### Now to calcule the new ones:
+
+```{r Statistical data with imputed values instead of NAs}
+StepsByDaySummaryImputed<-summary(StepsDayData2$StepsByDay)
+print(StepsByDaySummaryImputed)
+```
+
+### The mean stays the same: `r StepsByDaySummaryImputed[4]` and the new median will be `r StepsByDaySummaryImputed[3]` higher than the old one, even if only by a step. The difference is of 1.0891/10765.1 , approximately 0.01%.
+
+## 4) Comparisson between Weekday's and Weekend's Behaviours.
+
+```{r Creating the factor column (week or weekend)}
+WeekyDays<-strptime(data2work$date, format = "%Y-%m-%d")
+IsWeek<-!is.weekend(WeekyDays)
+WeekFactor<-as.character(IsWeek)
+WeekFactor[IsWeek]<-"Weekday"
+WeekFactor[!IsWeek]<-"Weekend"
+WeekyLevels<-c("Weekday","Weekend")
+WeekFactor<-factor(WeekFactor,levels = WeekyLevels)
+data2work<-mutate(data2work,weekday_or_weekend=WeekFactor)
+rm(list = c("WeekyDays","IsWeek","WeekFactor","WeekyLevels"))
+head(data2work)
+```
+
+### Now we create the groups to summarize
+
+```{r summarizing for the weekdays and weekends}
+data4Weekend<-subset(data2work,grepl("Weekend",data2work$weekday_or_weekend))
+data4Weekdays<-subset(data2work,grepl("Weekday",data2work$weekday_or_weekend))
+StepsByIntervalWeekends<-tapply(data4Weekend$steps,data4Weekend$interval,mean)
+StepsByIntervalWeekdays<-tapply(data4Weekdays$steps,data4Weekdays$interval,mean)
+Interval<-levels(data4Weekend$interval)
+```
+
+#### Now, with the data separated, the plot for the Weekdays and Weekends can be compared. The powderblue line is the contrasting behaviour, the purple line is the bevaviour that's been plotted.
+
+```{r last scatterplots}
+par(mfrow=c(2,1), mar=c(5,4,1,1))
+plot(Interval,StepsByIntervalWeekdays,type="l", main="Weekdays Behaviour",
+     xlab= "Five Minutes Interval", ylab="Steps Taken - Average",
+     col=ColorDays[4], xlim = c(0,2400), ylim=c(0,250))
+lines(Interval,StepsByIntervalWeekends,col="powderblue")
+grid(col = "lightgray", lty = "dotted", lwd = 1, equilogs = TRUE)
+plot(Interval,StepsByIntervalWeekends,type="l", main="Weekends Behaviour",
+     xlab= "Five Minutes Interval", ylab="Steps Taken - Average",
+     col=ColorDays[4],xlim = c(0,2400), ylim=c(0,250))
+lines(Interval,StepsByIntervalWeekdays,col="powderblue")
+grid(col = "lightgray", lty = "dotted", lwd = 1, equilogs = TRUE)
+```
+
+(Image 4)
+
+
+### The weekdays have a peak of activity between 8:00am to 10:00am, while the weekedns have a wider range of activity (three blocks, the first: 8:00am to 10:00am aprox., the second one: from 1:00pm to 2:30 aprox., and the last one: from 3:30pm maybe 4:00pm to something close to 6:00pm), but lower than the peak for the weekdays.
